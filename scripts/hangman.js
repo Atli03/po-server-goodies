@@ -13,7 +13,8 @@ function Hangman() {
     var minBodyParts = 5;
     var winnerDelay = 60;
     var answerDelay = 7;
-    var maxAnswers = 3;
+    var maxAnswers = [3, 2];
+    var maxGuesses = 2;
 
     var autoGamesFile = "scriptdata/hangmanq.txt";
     var leaderboardsFile = "scriptdata/hangmanLeaderboards.txt";
@@ -21,6 +22,9 @@ function Hangman() {
     var idleLimit = 1800;
     var autoGames;
     var autoGamesEnabled = false;
+
+    var regular = 0;
+    var suddenDeath = 1;
 
     var eventLimit = 1800;
     var eventCount = (SESSION.global() && SESSION.global().hangmanEventCount ? SESSION.global().hangmanEventCount : eventLimit);
@@ -35,6 +39,9 @@ function Hangman() {
     var hostName;
     var winner;
     var nextGame;
+    var gameMode;
+    var nextGameMode = 0;
+    
 
     var checked = [];
 
@@ -47,13 +54,14 @@ function Hangman() {
     var points;
     var misses;
     var answers;
-
+    var guesses;
+    var vowels = ["a", "e", "i", "o", "u"];
+	
     var leaderboards = {
         current:{},
         last:{},
         currentMonth: -1
     };
-
 
     this.lastAdvertise = 0;
     this.guessCharacter = function (src, commandData) {
@@ -69,10 +77,10 @@ function Hangman() {
             hangbot.sendMessage(src, "This is not a valid answer!", hangchan);
             return;
         }
-    /*    if (isEventGame && (this.isHangmanAdmin(src) || this.isHangmanSuperAdmin(src))) {
+        /*if (isEventGame && (this.isHangmanAdmin(src) || this.isHangmanSuperAdmin(src))) {
             hangbot.sendMessage(src, "You are HA or sHA, so you can't participate on Event Games!", hangchan);
             return;
-        } */
+        }*/
         if (checked.indexOf(sys.ip(src)) >= 0) {
             hangbot.sendMessage(src, "You checked the answer, so you can't play!", hangchan);
             return;
@@ -104,6 +112,16 @@ function Hangman() {
         if (usedLetters.indexOf(letter) >= 0) {
             hangbot.sendMessage(src, "This letter was already used!", hangchan);
             return;
+        }
+        if (gameMode === suddenDeath) {
+            if (vowels.indexOf(letter) >= 0) {
+                hangbot.sendMessage(src, "This letter was already used!", hangchan);
+                return;
+            }
+            if (sys.name(src) in guesses && guesses[sys.name(src)] >= maxGuesses) {
+                hangbot.sendMessage(src, "You can only use /g " + maxGuesses + " times!", hangchan);
+                return;
+            }
         }
 
         if (!points[sys.name(src)]) {
@@ -143,7 +161,15 @@ function Hangman() {
         else {
             if (!correct) {
                 this.addMiss(src);
-                parts--;
+                if (gameMode === regular) {
+                    parts--;
+                }
+            }
+            if (gameMode === suddenDeath) {
+                this.addGuessUse(src);
+                if (guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
+                    hangbot.sendAll("" + sys.name(src) + " is out of the game!", hangchan);
+                }
             }
             if (parts > 0) {
                 hangbot.sendAll("[Hint: " + hint + "]  [Letters used: " + usedLetters.map(function (x) {
@@ -180,10 +206,10 @@ function Hangman() {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
         }
-    /*    if (isEventGame && (this.isHangmanAdmin(src) || this.isHangmanSuperAdmin(src))) {
+        /*if (isEventGame && (this.isHangmanAdmin(src) || this.isHangmanSuperAdmin(src))) {
             hangbot.sendMessage(src, "You are HA or sHA, so you can't participate on Event Games!", hangchan);
             return;
-        } */
+        }*/
         if (checked.indexOf(sys.ip(src)) >= 0) {
             hangbot.sendMessage(src, "You checked the answer, so you can't play!", hangchan);
             return;
@@ -207,8 +233,8 @@ function Hangman() {
             hangbot.sendMessage(src, "You need to wait for another 9 seconds before submitting another guess!", hangchan);
             return;
         }
-        if (sys.name(src) in answers && answers[sys.name(src)] >= maxAnswers) {
-            hangbot.sendMessage(src, "You can only use /a " + maxAnswers + " times!", hangchan);
+        if (sys.name(src) in answers && answers[sys.name(src)] >= maxAnswers[gameMode]) {
+            hangbot.sendMessage(src, "You can only use /a " + maxAnswers[gameMode] + " times!", hangchan);
             return;
         }
         var ans = commandData.replace(/\-/g, " ").replace(/[^A-Za-z0-9\s']/g, "").replace(/^\s+|\s+$/g, '');
@@ -217,7 +243,6 @@ function Hangman() {
                 hangbot.sendAll("Warning: Player " + sys.name(src) + " answered '" + ans + "' in #Hangman", sys.channelId("Victory Road"));
         }
         sendChanHtmlAll(" ", hangchan);
-
 
         sendChanHtmlAll(" ", hangchan);
         hangbot.sendAll("" + sys.name(src) + " answered " + ans + "!", hangchan);
@@ -248,6 +273,12 @@ function Hangman() {
             this.applyPoints(src, 0);
             this.addAnswerUse(src);
             hangbot.sendAll("" + sys.name(src) + "'s answer was wrong! The game continues!", hangchan);
+            if (gameMode === suddenDeath) {
+                if (guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
+                    hangbot.sendAll("" + sys.name(src) + " is out of the game", hangchan);
+                }
+            }
+        }
             sendChanHtmlAll(" ", hangchan);
             SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 2000;
         }
@@ -272,7 +303,7 @@ function Hangman() {
         var data = commandData.split(":");
         var a = this.removeNonEnglish(data[0]);
         var h = data[1];
-        var p = data.length < 3 ? defaultParts : data[2];
+        //var p = data.length < 3 ? defaultParts : data[2];
 
         if (!a) {
             hangbot.sendMessage(src, "You need to choose a word!", hangchan);
@@ -303,7 +334,7 @@ function Hangman() {
         }
 
         isEventGame = false;
-        this.createGame(sys.name(src), a, h, p, src);
+        this.createGame(sys.name(src), a, h, src, regular);
     };
 
     //adapted from string_to_slug http://dense13.com/blog/2009/05/03/converting-string-to-slug-javascript/
@@ -328,7 +359,6 @@ function Hangman() {
                 answer: a
             };
 
-
         for (l = 0; l < a.length; l++) {
             if (validCharacters.indexOf(a[l].toLowerCase()) !== -1) {
                 validLetters++;
@@ -344,20 +374,24 @@ function Hangman() {
         }
 
         result.answer = a;
-
         return result;
     };
 
-    this.createGame = function (name, a, h, p, src) {
+    this.createGame = function (name, a, h, src, mode) {
         var validCharacters = "abcdefghijklmnopqrstuvwxyz";
         sys.saveVal("Stats/HangmanGamesPlayed", 1 + (+sys.getVal("Stats/HangmanGamesPlayed")));
         hint = h;
         word = a;
-        parts = (p && parseInt(p, 10) > 0) ? parseInt(p, 10) : defaultParts;
-        parts = (parts < minBodyParts) ? minBodyParts : parts;
+        //parts = (p && parseInt(p, 10) > 0) ? parseInt(p, 10) : defaultParts;
+        //parts = (parts < minBodyParts) ? minBodyParts : parts;
+        parts = defaultParts;
         points = {};
         misses = {};
         answers = {};
+        gameMode = mode;
+        if (gameMode = suddenDeath) {
+            guesses = {};
+        }
 
         checked = [];
         usedLetters = [];
@@ -372,6 +406,15 @@ function Hangman() {
             }
             else {
                 currentWord.push(word[e].toUpperCase());
+            }
+        }
+        if (gameMode === suddenDeath) {
+            for (e = 0; e < word.length; e++) {
+                for (v = 0; v < vowels.length; v++) {
+                    if (word[e].toLowerCase() === vowels[v]) {
+                        currentWord[e] = word[e].toUpperCase();
+                    }
+                }
             }
         }
 
@@ -404,7 +447,7 @@ function Hangman() {
             sys.sendAll("", 0);
         }
     };
-    this.startAutoGame = function(isEvent) {
+    this.startAutoGame = function(isEvent, mode) {
         if (autoGames.length === 0) {
             return;
         }
@@ -413,7 +456,7 @@ function Hangman() {
             h = randomGame[3],
             p = randomGame.length < 5 ? defaultParts : randomGame[4];
         isEventGame = isEvent;
-        this.createGame(hangbot.name, a, h, p, null);
+        this.createGame(hangbot.name, a, h, null, mode);
     };
     this.applyPoints = function (src, p) {
         if (!points[sys.name(src)]) {
@@ -432,7 +475,14 @@ function Hangman() {
             answers[sys.name(src)] = 0;
         }
         answers[sys.name(src)] += 1;
-        hangbot.sendMessage(src, "You can only use /a " + (maxAnswers - answers[sys.name(src)]) + " more times!", hangchan);
+        hangbot.sendMessage(src, "You can only use /a " + (maxAnswers[gameMode] - answers[sys.name(src)]) + " more times!", hangchan);
+    };
+    this.addGuessUse = function (src) {
+        if (!guesses[sys.name(src)]) {
+            guesses[sys.name(src)] = 0;
+        }
+        guesses[sys.name(src)] += 1;
+        hangbot.sendMessage(src, "You can only use /g " + (maxGuesses - guesses[sys.name(src)]) + " more times!", hangchan);
     };
     this.countPoints = function () {
         var maxPoints = 0,
@@ -613,8 +663,8 @@ function Hangman() {
         }
         idleCount = 0;
     };
-    this.startEventGame = function() {
-        hangman.startAutoGame(true);
+    this.startEventGame = function(mode) {
+        hangman.startAutoGame(true, mode);
         pendingEvent = false;
     };
     this.viewGame = function (src) {
@@ -778,7 +828,7 @@ function Hangman() {
         var info = commandData.split(":");
         var newQ = info[0].toLowerCase();
         var newH = info[1];
-        var newC = info.length > 2 ? parseInt(info[2], 10) : 7;
+        //var newC = info.length > 2 ? parseInt(info[2], 10) : 7;
 
         var result = this.validateAnswer(newQ);
 
@@ -790,84 +840,76 @@ function Hangman() {
         }
         newQ = result.answer;
 
-        if (isNaN(newC)) {
+        /*if (isNaN(newC)) {
             hangbot.sendMessage(src, "Number of chances must be a valid number higher or equal to " + minBodyParts + "!", hangchan);
             return;
-        }
-        
+        }*/
+
         var index = autoGames.length + 1;
         var author = sys.name(src);
-        autoGames.push(index + ":" + author + ":" + newQ + ":" + newH + ":" + newC);
+        autoGames.push(index + ":" + author + ":" + newQ + ":" + newH + ":7");
         sys.write(autoGamesFile, JSON.stringify(autoGames));
         hangbot.sendMessage(src, "You have successfully added a new question!", hangchan);
 
     };
 
     this.searchQuest = function(src, commandData) {
-        if (word && isEventGame){
+        if (word && isEventGame) {
             hangbot.sendMessage(src, "You can't use this command when an Event Game is running!", hangchan);
             return;
-    }
-    else{
-        if (commandData === undefined) {
-            hangbot.sendMessage(src, "Invalid format. Proper format is /searchquest query:criteria where criteria is (w)ord (default), (h)int or (i)ndex.", hangchan);
-            return;
         }
-        if (autoGames.length === 0) {
-            hangbot.sendMessage(src, "There are no games in the database.", hangchan);
-            return;
-        }
-        else{
-            if (commandData.indexOf(":") === -1) {
-                hangman.searchByWord(src, commandData);
+        else {
+            if (commandData === undefined) {
+                hangbot.sendMessage(src, "Invalid format. Proper format is /searchquest query:criteria where criteria is (w)ord (default), (h)int or (i)ndex.", hangchan);
+                return;
+            }
+            if (autoGames.length === 0) {
+                hangbot.sendMessage(src, "There are no games in the database.", hangchan);
+                return;
             }
             else{
-                var search = commandData.split(":")[0],
-                method = commandData.split(":")[1];
-                switch (method){
-                    case "i":
-                        hangman.searchByIndex(src, search);
-                        break;
-                    case "w":
-                        hangman.searchByWord(src, search);
-                        break;
-                    case "h":
-                        hangman.searchByHint(src, search);
-                        break;
-                    case "e":
-                        hangman.searchByEditor(src, search);
-                        break;
-                    default:
-                    hangbot.sendMessage(src, "Select a proper method of searching.", hangchan);
-                    return;
+                if (commandData.indexOf(":") === -1) {
+                    hangman.searchByWord(src, commandData);
+                }
+                else {
+                    var search = commandData.split(":")[0],
+                    method = commandData.split(":")[1];
+                    switch (method){
+                        case "i":
+                            hangman.searchByIndex(src, search);
+                            break;
+                        case "w":
+                            hangman.searchByWord(src, search);
+                            break;
+                        case "h":
+                            hangman.searchByHint(src, search);
+                            break;
+                        default:
+                        hangbot.sendMessage(src, "Select a proper method of searching.", hangchan);
+                        return;
+                    }
                 }
             }
         }
-    }
-        
-
     };
 
     this.searchByWord = function(src, commandData){
         var found = false;
         for (var e = 0; e < autoGames.length; e++) {
-        var game = autoGames[e].split(":");
-        var i = game[0],
-            u = game[1],
-            a = game[2].toUpperCase(),
-            h = game[3],
-            c = game.length < 5 ? defaultParts : game[4];
-            
-          
-                if (a === commandData.toUpperCase()) {
-                    hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c + " - User: " + u, hangchan);
-            found = true;
-                }
-    }
-    if (!found){
-        hangbot.sendMessage(src, "There are no games with that answer.", hangchan);
-    }
-
+            var game = autoGames[e].split(":");
+            var i = game[0],
+                u = game[1],
+                a = game[2].toUpperCase(),
+                h = game[3],
+                //c = game.length < 5 ? defaultParts : game[4];
+            if (a === commandData.toUpperCase()) {
+                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);
+                found = true;
+            }
+        }
+        if (!found){
+            hangbot.sendMessage(src, "There are no games with that answer.", hangchan);
+        }
     };
 
     this.searchByHint = function(src, commandData){
@@ -878,10 +920,10 @@ function Hangman() {
                 u = game[1],
                 a = game[2].toUpperCase(),
                 h = game[3],
-                c = game.length < 5 ? defaultParts : game[4];
-        
+                //c = game.length < 5 ? defaultParts : game[4];
+
             if (h.toUpperCase() === commandData.toUpperCase()) {
-                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c + " - User: " + u, hangchan);
+                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);
                 found = true;
             }
         }
@@ -909,31 +951,11 @@ function Hangman() {
             u = game[1],
             a = game[2].toUpperCase(),
             h = game[3],
-            c = game.length < 5 ? defaultParts : game[4];
+            //c = game.length < 5 ? defaultParts : game[4];
     
-        hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c + " - User: " + u, hangchan);
+        hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);
     };
-    
-    this.searchByEditor = function(src, commandData){
-        var found = false;
-        for (var e = 0; e < autoGames.length; e++) {
-            var game = autoGames[e].split(":");
-            var i = game[0],
-                u = game[1],
-                a = game[2].toUpperCase(),
-                h = game[3],
-                c = game.length < 5 ? defaultParts : game[4];
-        
-            if (u.toUpperCase() === commandData.toUpperCase()) {
-                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c + " - User: " + u, hangchan);
-                found = true;
-            }
-        }
-        if (!found){
-            hangbot.sendMessage(src, "There are no games with that hint.", hangchan);
-        }
-    };
-    
+
     this.deleteQuest = function(src, commandData) {
        
         if (autoGames.length === 0) {
@@ -1007,14 +1029,14 @@ function Hangman() {
         var edit = autoGames[i-1].split(":");
         var a = edit[2].toUpperCase(),
             h = edit[3],
-        c = edit.length < 5 ? defaultParts : edit[4];
+            c = edit.length < 5 ? defaultParts : edit[4];
     
-        hangbot.sendMessage(src, "(Before) Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c, hangchan);
+        hangbot.sendMessage(src, "(Before) Index: " + i + " - Word: " + a + " - Hint: " + h, hangchan);
     
         a = info[1].toLowerCase();
         var sub = i + ":" + sys.name(src) + ":" + a + ":" + h + ":" + c;
     
-        hangbot.sendMessage(src, "(After) Index: " + i + " - Word: " + a.toUpperCase() + " - Hint: " + h + " - Chances: " + c, hangchan);
+        hangbot.sendMessage(src, "(After) Index: " + i + " - Word: " + a.toUpperCase() + " - Hint: " + h, hangchan);
     
         autoGames.splice(i-1, 1, sub);
         sys.write(autoGamesFile, JSON.stringify(autoGames));
@@ -1052,20 +1074,20 @@ function Hangman() {
         var edit = autoGames[i-1].split(":");
         var a = edit[2].toUpperCase(),
             h = edit[3],
-        c = edit.length < 5 ? defaultParts : edit[4];
+            c = edit.length < 5 ? defaultParts : edit[4];
     
-        hangbot.sendMessage(src, "(Before) Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c, hangchan);
+        hangbot.sendMessage(src, "(Before) Index: " + i + " - Word: " + a + " - Hint: " + h, hangchan);
     
         h = info[1].toLowerCase();
         var sub = i + ":" + sys.name(src) + ":" + a + ":" + h + ":" + c;
     
-        hangbot.sendMessage(src, "(After) Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c, hangchan);
+        hangbot.sendMessage(src, "(After) Index: " + i + " - Word: " + a + " - Hint: " + h, hangchan);
     
         autoGames.splice(i-1, 1, sub);
         sys.write(autoGamesFile, JSON.stringify(autoGames));
     };
 
-    this.changeChances = function(src, commandData) {
+   /* this.changeChances = function(src, commandData) {
     
         if (autoGames.length === 0) {
             hangbot.sendMessage(src, "There are no games in the database, you can't edit anything.", hangchan);
@@ -1114,7 +1136,7 @@ function Hangman() {
     
         autoGames.splice(i-1, 1, sub);
         sys.write(autoGamesFile, JSON.stringify(autoGames));
-    };
+    }; */
 
     this.checkGame = function (src) {
         if (!word || isEventGame){
@@ -1166,6 +1188,7 @@ function Hangman() {
             return;
         }
         val = parseInt(val, 10);
+
 
         switch (param.toLowerCase()) {
             case "chances":
@@ -1223,10 +1246,11 @@ function Hangman() {
             "/hangmanbans: Searches the hangman banlist, show full list if no search term is entered.",
             "/flashhas: Flashes all Hangman Admins. Use /flashhas [phrase] to use a different message (abuse will be punished for).",
             "/passha: To give your Hangman Admin powers to an alt.",
-            "/searchquest: To search a question in the autogame/eventgame data base. Format /searchquest query:criteria where criteria is (w)ord (default), (h)int, (i)ndex or (e)ditor.",
+            "/addquest: To add a question to the autogame/eventgame data base. Format /addquest Answer:Hint:Guess number.",
+            "/searchquest: To search a question in the autogame/eventgame data base. Format /searchquest query:criteria where criteria is (w)ord (default), (h)int or (i)ndex.",
+            "/deletequest: To delete a question in the autogame/eventgame data base. Format /deletequest index.",
             "/changeword: To change the word in a question in the autogame/eventgame data base. Format /changeword index:word.",
             "/changehint: To change the hint in a question in the autogame/eventgame data base. Format /changeword index:hint.",
-            "/changechances: To change the chances in a question in the autogame/eventgame data base. Format /changeword index:word.",
             "/checkgame: To see the answer of a game (only once per game). Prevents playing if used."
         ];
         var superAdminHelp = [
@@ -1234,10 +1258,9 @@ function Hangman() {
             "/config: To change the answer delay time and other settings. Format /config parameter:value. Type /config by itself to see more help.",
             "/hangmanadmin: To promote a new Hangman Admin. Use /shangmanadmin for a silent promotion.",
             "/hangmanadminoff: To demote a Hangman Admin or a Hangman Super Admin. Use /shangmanadminoff for a silent demotion.",
-            "/addquest: To add a question to the autogame/eventgame data base. Format /addquest Answer:Hint:Guess number.",
-            "/deletequest: To delete a question in the autogame/eventgame data base. Format /deletequest index.",
             "/eventgame: To turn eventgames on/off. Format /eventgame on or /eventgame off.",
-            "/forceevent: Forces an Event game to start."
+            "/forceevent: Forces a regular event game to start.",
+            "/forcesuddendeath: Forces a Sudden Death even game to start."
         ];
         var ownerHelp = [
             "*** Server owner Hangman Commands ***",
@@ -1402,9 +1425,19 @@ function Hangman() {
          return true;
          }
          */
+
+        if(command === "addquest") {
+            hangman.addQuest(src, commandData);
+            return true;
+        }
         
         if(command === "searchquest") {
             hangman.searchQuest(src, commandData);
+            return true;
+        }
+        
+        if(command === "deletequest") {
+            hangman.deleteQuest(src, commandData);
             return true;
         }
 
@@ -1418,10 +1451,10 @@ function Hangman() {
             return true;
         }
         
-        if(command === "changechances") {
+     /*   if(command === "changechances") {
             hangman.changeChances(src, commandData);
             return true;
-        }
+        } */
 
         if (command === "hangmanmutes" || command === "hangmanbans") {
             hangman.hangmanMuteList(src, commandData);
@@ -1435,16 +1468,6 @@ function Hangman() {
 
         if (hangman.authLevel(src) < 2) {
             return false;
-        }
-
-        if(command === "addquest") {
-            hangman.addQuest(src, commandData);
-            return true;
-        }
-        
-        if(command === "deletequest") {
-            hangman.deleteQuest(src, commandData);
-            return true;
         }
 
         if (command === "config") {
@@ -1472,7 +1495,16 @@ function Hangman() {
                 hangbot.sendMessage(src, "There is currently a game running!", hangchan);
             }
             else{
-                hangman.startEventGame();
+                hangman.startEventGame(regular);
+            }
+            return true;
+        }
+		if(command === "forcesuddendeath"){
+            if (word) {
+                hangbot.sendMessage(src, "There is currently a game running!", hangchan);
+            }
+            else{
+                hangman.startEventGame(suddenDeath);
             }
             return true;
         }
@@ -1716,26 +1748,28 @@ function Hangman() {
                 hangman.startAutoGame(false);
             }
         }
-        if(eventCount === 0 && eventGamesEnabled) {
+        if (eventCount === 0 && eventGamesEnabled) {
             hangman.checkNewMonth();
             eventCount = -1;
             if (word) {
                 pendingEvent = true;
             } else {
-                hangman.startEventGame();
+                hangman.startEventGame(nextGameMode);
+                nextGameMode = nextGameMode == regular ? suddenDeath : regular;
             }
         }
-        if(eventDelay) {
+        if (eventDelay) {
             if (eventDelay < delayLimit) {
                 delayCount++;
             }
             else {
                 delayCount = 0;
                 eventDelay = false;
-                hangman.startEventGame();
+                hangman.startEventGame(nextGameMode);
+                nextGameMode = nextGameMode == regular ? suddenDeath : regular;
             }
         }
-        if(eventCount === 60 && eventGamesEnabled) {
+        if (eventCount === 60 && eventGamesEnabled) {
             sys.sendAll("", 0);
             sys.sendAll("*** ************************************************************ ***", 0);
             hangbot.sendAll("A new event game of #Hangman will start in about a minute!", 0);

@@ -900,7 +900,7 @@ function Hangman() {
             var i = game[0],
                 u = game[1],
                 a = game[2].toUpperCase(),
-                h = game[3],
+                h = game[3];
                 //c = game.length < 5 ? defaultParts : game[4];
             if (a === commandData.toUpperCase()) {
                 hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);
@@ -919,7 +919,7 @@ function Hangman() {
             var i = game[0],
                 u = game[1],
                 a = game[2].toUpperCase(),
-                h = game[3],
+                h = game[3];
                 //c = game.length < 5 ? defaultParts : game[4];
 
             if (h.toUpperCase() === commandData.toUpperCase()) {
@@ -950,7 +950,7 @@ function Hangman() {
         var i = game[0],
             u = game[1],
             a = game[2].toUpperCase(),
-            h = game[3],
+            h = game[3];
             //c = game.length < 5 ? defaultParts : game[4];
     
         hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);

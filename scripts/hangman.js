@@ -278,7 +278,6 @@ function Hangman() {
                     hangbot.sendAll("" + sys.name(src) + " is out of the game", hangchan);
                 }
             }
-        }
             sendChanHtmlAll(" ", hangchan);
             SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 2000;
         }

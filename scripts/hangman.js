@@ -966,11 +966,11 @@ function Hangman() {
             var i = game[0],
                 u = game[1],
                 a = game[2].toUpperCase(),
-                h = game[3]
-                c = game.length < 5 ? defaultParts : game[4];
+                h = game[3];
+                //c = game.length < 5 ? defaultParts : game[4];
         
             if (u.toUpperCase() === commandData.toUpperCase()) {
-                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - Chances: " + c + " - User: " + u, hangchan);
+                hangbot.sendMessage(src, "Index: " + i + " - Word: " + a + " - Hint: " + h + " - User: " + u, hangchan);
                 found = true;
             }
         }
@@ -978,7 +978,7 @@ function Hangman() {
             hangbot.sendMessage(src, "There are no games last edited by that person.", hangchan);
         }
     };
-	
+
     this.deleteQuest = function(src, commandData) {
        
         if (autoGames.length === 0) {
@@ -1211,7 +1211,6 @@ function Hangman() {
             return;
         }
         val = parseInt(val, 10);
-
 
         switch (param.toLowerCase()) {
             case "chances":
@@ -1449,7 +1448,6 @@ function Hangman() {
          }
          */
 
-        
         if(command === "searchquest") {
             hangman.searchQuest(src, commandData);
             return true;
@@ -1483,19 +1481,17 @@ function Hangman() {
         if (hangman.authLevel(src) < 2) {
             return false;
         }
-	
+
         if(command === "addquest") {
             hangman.addQuest(src, commandData);
             return true;
         }
-		
-		        
+
         if(command === "deletequest") {
             hangman.deleteQuest(src, commandData);
             return true;
         }
 
-		
         if (command === "config") {
             hangman.configGame(src, commandData);
             return true;

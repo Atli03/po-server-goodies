@@ -63,6 +63,7 @@ function Hangman() {
         currentMonth: -1
     };
 
+
     this.lastAdvertise = 0;
     this.guessCharacter = function (src, commandData) {
         if (sys.ip(src) === host) {
@@ -115,7 +116,7 @@ function Hangman() {
         }
         if (gameMode === suddenDeath) {
             if (vowels.indexOf(letter) >= 0) {
-                hangbot.sendMessage(src, "This letter was already used!", hangchan);
+                hangbot.sendMessage(src, "This is a Sudden Death game, you can't guess vowels!", hangchan);
                 return;
             }
             if (sys.name(src) in guesses && guesses[sys.name(src)] >= maxGuesses) {
@@ -174,7 +175,7 @@ function Hangman() {
             if (parts > 0) {
                 hangbot.sendAll("[Hint: " + hint + "]  [Letters used: " + usedLetters.map(function (x) {
                     return x.toUpperCase();
-                }).join(", ") + "]  [Chances left: " + parts + "] ", hangchan);
+                }).join(", ") + "] " + (gameMode === regular ? "[Chances left: " + parts + "] "), hangchan);
                 sendChanHtmlAll(" ", hangchan);
                 this.applyPoints(src, p);
                 SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 1000;

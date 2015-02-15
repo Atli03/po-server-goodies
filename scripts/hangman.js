@@ -175,7 +175,7 @@ function Hangman() {
             if (parts > 0) {
                 hangbot.sendAll("[Hint: " + hint + "]  [Letters used: " + usedLetters.map(function (x) {
                     return x.toUpperCase();
-                }).join(", ") + "] " + (gameMode === regular ? "[Chances left: " + parts + "] "), hangchan);
+                }).join(", ") + "] " + (gameMode === regular ? "[Chances left: " + parts + "] " : ""), hangchan);
                 sendChanHtmlAll(" ", hangchan);
                 this.applyPoints(src, p);
                 SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 1000;

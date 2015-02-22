@@ -7,7 +7,7 @@ var html_escape = require("utilities.js").html_escape;
 function Hangman() {
     var hangman = this;
     var hangchan;
-c
+
     var defaultChannel = "Hangman";
     var defaultParts = 7;
     var minBodyParts = 5;

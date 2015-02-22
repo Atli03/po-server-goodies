@@ -1197,11 +1197,12 @@ function Hangman() {
         if (!param || !val) {
             sys.sendMessage(src, " ", hangchan);
             hangbot.sendMessage(src, "How to use /config: Use /config [parameter]:[value]. Possible parameters are:", hangchan);
-            hangbot.sendMessage(src, "chances: Set minimum number of chances for any game (currently set to " + minBodyParts + " chances). ", hangchan);
+            //hangbot.sendMessage(src, "chances: Set minimum number of chances for any game (currently set to " + minBodyParts + " chances). ", hangchan);
             hangbot.sendMessage(src, "delay: Set delay (in seconds) between each guess. Full answers take double the time (currently set to " + answerDelay + " seconds). ", hangchan);
             hangbot.sendMessage(src, "winner: Set how many seconds the winner of a game have to start a new one before anyone can start (currently set to " + winnerDelay + " seconds). ", hangchan);
-            hangbot.sendMessage(src, "answers: Set how many times each player can use /a (currently set to " + maxAnswers + " seconds). ", hangchan);
-            hangbot.sendMessage(src, "idle: Set how many minutes the channel must be idle for game to automatically start (currently set to " + idleLimit/60 + " minutes).", hangchan);
+            hangbot.sendMessage(src, "answersreg: Set how many times each player can use /a in a regular game (currently set to " + maxAnswers[regular]). ", hangchan);
+            hangbot.sendMessage(src, "answerssd: Set how many times each player can use /a in a sudden death game (currently set to " + maxAnswers[suddenDeath]). ", hangchan);
+            //hangbot.sendMessage(src, "idle: Set how many minutes the channel must be idle for game to automatically start (currently set to " + idleLimit/60 + " minutes).", hangchan);
             hangbot.sendMessage(src, "event: Set how often Event Games happen (currently set to " + eventLimit/60 + " minutes).", hangchan);
             sys.sendMessage(src, " ", hangchan);
             return;

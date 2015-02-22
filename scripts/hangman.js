@@ -7,7 +7,7 @@ var html_escape = require("utilities.js").html_escape;
 function Hangman() {
     var hangman = this;
     var hangchan;
-
+c
     var defaultChannel = "Hangman";
     var defaultParts = 7;
     var minBodyParts = 5;
@@ -66,10 +66,10 @@ function Hangman() {
 
     this.lastAdvertise = 0;
     this.guessCharacter = function (src, commandData) {
-        if (sys.ip(src) === host) {
+        /*if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }
+        }*/
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -86,12 +86,12 @@ function Hangman() {
             hangbot.sendMessage(src, "You checked the answer, so you can't play!", hangchan);
             return;
         }
-        /*for (var x in points) {
+        for (var x in points) {
             if (sys.ip(src) === sys.dbIp(x) && sys.name(src)!== x) {
                 hangbot.sendMessage(src, "You are already playing under another alt!", hangchan);
                 return;
             }
-        }*/
+        }
         var now = (new Date()).getTime();
         if (now < SESSION.users(src).hangmanTime) {
             hangbot.sendMessage(src, "You need to wait for another " + (Math.floor((SESSION.users(src).hangmanTime - now) / 1000) + 1) + " seconds before submitting another guess!", hangchan);
@@ -199,10 +199,10 @@ function Hangman() {
         if (commandData === undefined) {
             return;
         }
-        if (sys.ip(src) === host) {
+        /*if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }
+        }*/
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -219,12 +219,12 @@ function Hangman() {
             hangbot.sendMessage(src, "The answer must have at least four letters!", hangchan);
             return;
         }
-        /*for (var x in points) {
+        for (var x in points) {
             if (sys.ip(src) === sys.dbIp(x) && sys.name(src)!== x) {
                 hangbot.sendMessage(src, "You are already playing under another alt!", hangchan);
                 return;
             }
-        }*/
+        }
         var now = (new Date()).getTime();
         if (now < SESSION.users(src).hangmanTime) {
             hangbot.sendMessage(src, "You need to wait for another " + (Math.floor((SESSION.users(src).hangmanTime - now) / 1000) + 1) + " seconds before submitting another guess!", hangchan);

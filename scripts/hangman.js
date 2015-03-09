@@ -415,7 +415,7 @@ function Hangman() {
         sendChanHtmlAll(" ", hangchan);
         sys.sendAll("*** ************************************************************ ***", hangchan);
         if (isEventGame) {
-            hangbot.sendAll("A " + (gameMode = suddenDeath ? "Sudden Death":"regular") + " Event Game has started! The winner of this game will receive 1 Leaderboard point!", hangchan);
+            hangbot.sendAll("A " + (gameMode == suddenDeath ? "Sudden Death":"regular") + " Event Game has started! The winner of this game will receive 1 Leaderboard point!", hangchan);
         } else {
             hangbot.sendAll(hostName + " started a new game of Hangman!", hangchan);
         }

@@ -41,7 +41,6 @@ function Hangman() {
     var nextGame;
     var gameMode;
     var nextGameMode = 0;
-    
 
     var checked = [];
 
@@ -884,9 +883,9 @@ function Hangman() {
                         case "h":
                             hangman.searchByHint(src, search);
                             break;
-				        case "e":
-							hangman.searchByEditor(src, search);
-							break;
+                            case "e":
+                            hangman.searchByEditor(src, search);
+                            break;
                         default:
                         hangbot.sendMessage(src, "Select a proper method of searching.", hangchan);
                         return;
@@ -1195,16 +1194,14 @@ function Hangman() {
         var param = commandData.split(":")[0];
         var val = commandData.split(":")[1];
         if (!param || !val) {
-            sys.sendMessage(src, " ", hangchan);
             hangbot.sendMessage(src, "How to use /config: Use /config [parameter]:[value]. Possible parameters are:", hangchan);
-            //hangbot.sendMessage(src, "chances: Set minimum number of chances for any game (currently set to " + minBodyParts + " chances). ", hangchan);
+            hangbot.sendMessage(src, "chances: Set default number of chances for any game (currently set to " + defaultParts + " chances). ", hangchan);
             hangbot.sendMessage(src, "delay: Set delay (in seconds) between each guess. Full answers take double the time (currently set to " + answerDelay + " seconds). ", hangchan);
             hangbot.sendMessage(src, "winner: Set how many seconds the winner of a game have to start a new one before anyone can start (currently set to " + winnerDelay + " seconds). ", hangchan);
+            hangbot.sendMessage(src, "guessessd: Set how many times each player can use /g in a sudden death game (currently set to " + maxGuesses). ", hangchan);
             hangbot.sendMessage(src, "answersreg: Set how many times each player can use /a in a regular game (currently set to " + maxAnswers[regular]). ", hangchan);
             hangbot.sendMessage(src, "answerssd: Set how many times each player can use /a in a sudden death game (currently set to " + maxAnswers[suddenDeath]). ", hangchan);
-            //hangbot.sendMessage(src, "idle: Set how many minutes the channel must be idle for game to automatically start (currently set to " + idleLimit/60 + " minutes).", hangchan);
             hangbot.sendMessage(src, "event: Set how often Event Games happen (currently set to " + eventLimit/60 + " minutes).", hangchan);
-            sys.sendMessage(src, " ", hangchan);
             return;
         }
         if (parseInt(val, 10) <= 0) {
@@ -1215,8 +1212,8 @@ function Hangman() {
 
         switch (param.toLowerCase()) {
             case "chances":
-                minBodyParts = val;
-                hangbot.sendMessage(src, "Minimum chances set to " + val + ".", hangchan);
+                defaultParts = val;
+                hangbot.sendMessage(src, "Default chances set to " + val + ".", hangchan);
                 break;
             case "delay":
                 answerDelay = val;
@@ -1226,13 +1223,17 @@ function Hangman() {
                 winnerDelay = val;
                 hangbot.sendMessage(src, "Winner will have " + val + " second(s) to start a new game.", hangchan);
                 break;
-            case "answers":
-                maxAnswers = val;
-                hangbot.sendMessage(src, "Players can use /a " + val + " time per game.", hangchan);
+            case "guessessd":
+                maxGuesses = val;
+                hangbot.sendMessage(src, "Players can use /g " + val + " times in a sudden death game.", hangchan);
                 break;
-            case "idle":
-                idleLimit = val*60;
-                hangbot.sendMessage(src, "Game will auto start after " + val + " minutes.", hangchan);
+            case "answersreg":
+                maxAnswers[regular] = val;
+                hangbot.sendMessage(src, "Players can use /a " + val + " times in a regular game.", hangchan);
+                break;
+            case "answerssd":
+                maxAnswers[suddenDeath] = val;
+                hangbot.sendMessage(src, "Players can use /a " + val + " times in a sudden death game.", hangchan);
                 break;
             case "event":
                 eventLimit = val*60;
@@ -1269,7 +1270,7 @@ function Hangman() {
             "/hangmanbans: Searches the hangman banlist, show full list if no search term is entered.",
             "/flashhas: Flashes all Hangman Admins. Use /flashhas [phrase] to use a different message (abuse will be punished for).",
             "/passha: To give your Hangman Admin powers to an alt.",
-            "/searchquest: To search a question in the autogame/eventgame data base. Format /searchquest query:criteria where criteria is (w)ord (default), (h)int or (i)ndex.",
+            "/searchquest: To search a question in the autogame/eventgame data base. Format /searchquest query:criteria where criteria is (w)ord (default), (h)int, (i)ndex or (e)ditor.",
             "/changeword: To change the word in a question in the autogame/eventgame data base. Format /changeword index:word.",
             "/changehint: To change the hint in a question in the autogame/eventgame data base. Format /changeword index:hint.",
             "/checkgame: To see the answer of a game (only once per game). Prevents playing if used."
@@ -1279,8 +1280,8 @@ function Hangman() {
             "/config: To change the answer delay time and other settings. Format /config parameter:value. Type /config by itself to see more help.",
             "/hangmanadmin: To promote a new Hangman Admin. Use /shangmanadmin for a silent promotion.",
             "/hangmanadminoff: To demote a Hangman Admin or a Hangman Super Admin. Use /shangmanadminoff for a silent demotion.",
-			"/addquest: To add a question to the autogame/eventgame data base. Format /addquest Answer:Hint:Guess number.",
-            "/deletequest: To delete a question in the autogame/eventgame data base. Format /deletequest index.",			
+            "/addquest: To add a question to the autogame/eventgame data base. Format /addquest Answer:Hint:Guess number.",
+            "/deletequest: To delete a question in the autogame/eventgame data base. Format /deletequest index.",
             "/eventgame: To turn eventgames on/off. Format /eventgame on or /eventgame off.",
             "/forceevent: Forces a regular event game to start.",
             "/forcesuddendeath: Forces a Sudden Death even game to start."
@@ -1288,7 +1289,7 @@ function Hangman() {
         var ownerHelp = [
             "*** Server owner Hangman Commands ***",
             "/hangmansuperadmin: To promote a new Hangman Super Admin. Use /shangmansuperadmin for a silent promotion.",
-            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion. UPDATE 16:20"
+            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion."
         ];
         var help = userHelp;
         if (this.authLevel(src) > 0) {

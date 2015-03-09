@@ -167,9 +167,6 @@ function Hangman() {
             }
             if (gameMode === suddenDeath) {
                 this.addGuessUse(src);
-                if (guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
-                    hangbot.sendAll("" + sys.name(src) + " is out of the game!", hangchan);
-                }
             }
             if (parts > 0) {
                 hangbot.sendAll("[Hint: " + hint + "]  [Letters used: " + usedLetters.map(function (x) {
@@ -273,11 +270,6 @@ function Hangman() {
             this.applyPoints(src, 0);
             this.addAnswerUse(src);
             hangbot.sendAll("" + sys.name(src) + "'s answer was wrong! The game continues!", hangchan);
-            if (gameMode === suddenDeath) {
-                if (guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
-                    hangbot.sendAll("" + sys.name(src) + " is out of the game", hangchan);
-                }
-            }
             sendChanHtmlAll(" ", hangchan);
             SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 2000;
         }
@@ -423,7 +415,7 @@ function Hangman() {
         sendChanHtmlAll(" ", hangchan);
         sys.sendAll("*** ************************************************************ ***", hangchan);
         if (isEventGame) {
-            hangbot.sendAll("An Event Game has started! The winner of this game will receive 1 Leaderboard point!", hangchan);
+            hangbot.sendAll("A " + (gameMode = suddenDeath ? "Sudden Death":"regular") + " Event Game has started! The winner of this game will receive 1 Leaderboard point!", hangchan);
         } else {
             hangbot.sendAll(hostName + " started a new game of Hangman!", hangchan);
         }
@@ -475,6 +467,9 @@ function Hangman() {
         }
         answers[sys.name(src)] += 1;
         hangbot.sendMessage(src, "You can only use /a " + (maxAnswers[gameMode] - answers[sys.name(src)]) + " more times!", hangchan);
+        if (gameMode === suddenDeath && guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
+            hangbot.sendAll("" + sys.name(src) + " is out of the game!", hangchan);
+        }
     };
     this.addGuessUse = function (src) {
         if (!guesses[sys.name(src)]) {
@@ -482,6 +477,9 @@ function Hangman() {
         }
         guesses[sys.name(src)] += 1;
         hangbot.sendMessage(src, "You can only use /g " + (maxGuesses - guesses[sys.name(src)]) + " more times!", hangchan);
+        if (guesses[sys.name(src)] >= maxGuesses && answers[sys.name(src)] >= maxAnswers[suddenDeath]) {
+            hangbot.sendAll("" + sys.name(src) + " is out of the game!", hangchan);
+        }
     };
     this.countPoints = function () {
         var maxPoints = 0,

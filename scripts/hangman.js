@@ -640,7 +640,7 @@ function Hangman() {
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
             if (sys.existChannel("Victory Road"))
-                hangbot.sendAll("Warning: Player " + sys.name(src) + " stopped " + (sys.name(src) == hostName ? "their" : hostName + "'s") + " game in #Hangman", sys.channelId("Victory Road"));
+                hangbot.sendAll("Warning: Player " + sys.name(src) + " stopped " + (sys.name(src) == hostName ? "their" : hostName + "'s") + " game in #Hangman. " + (sys.name(src) !== hostName ? "(Hint: " + hint + ", Answer: " + word + ")" : ""), sys.channelId("Victory Road"));
             word = undefined;
             winner = undefined;
             this.resetTimers();
@@ -712,6 +712,7 @@ function Hangman() {
             "±Actions: If you guess wrong too many times, the host wins!",
             "*** *********************************************************************** ***",
             "±Hosting: To host a game, type /start Answer:Hint. The host can't guess or answer during their own game.",
+            //"±Hosting: You can also type /start Answer:Hint:Number to set how many wrong guesses must be made before you win (minimum of " + minBodyParts + ").",
             "±Hosting: The winner of the previous game has priority for hosting the next game, and may use /pass User to give that priority to another user.",
             "±Hosting: If the user with hosting priority doesn't start a new game within " + winnerDelay + " seconds, anyone can host.",
             "*** *********************************************************************** ***",
@@ -927,7 +928,7 @@ function Hangman() {
             }
         }
         if (!found){
-			hangbot.sendMessage(src, "There are no games last edited by that person.", hangchan);
+            hangbot.sendMessage(src, "There are no games with that hint.", hangchan);
         }
     };
 
@@ -1169,7 +1170,7 @@ function Hangman() {
                 hangbot.sendMessage(src, "The answer for the current game is " + word.toUpperCase() +"!", hangchan);
                 checked.push(sys.ip(src));
                 if (sys.existChannel("Victory Road"))
-                    hangbot.sendAll("Warning: Player " +sys.name(src) + " checked the current answer in #Hangman", sys.channelId("Victory Road"));
+                    hangbot.sendAll("Warning: Player " +sys.name(src) + " checked the answer of " + hostName + "'s game in #Hangman", sys.channelId("Victory Road"));
             }
         }
     };
@@ -1249,8 +1250,8 @@ function Hangman() {
             "",
             "*** Hangman Commands ***",
             "/help: For a how-to-play guide.",
-            "/guess: To guess a letter.",
-            "/answer: To answer the question.",
+            "/g or /guess: To guess a letter.",
+            "/a or /answer: To answer the question.",
             "/hangmanrules: To see the hangman rules.",
             "/view: To view the current game's state.",
             "/start: To start a new game of hangman. Format /start answer:hint. Example: /start Pikachu:Pokémon.",

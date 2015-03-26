@@ -65,10 +65,10 @@ function Hangman() {
 
     this.lastAdvertise = 0;
     this.guessCharacter = function (src, commandData) {
-        /*if (sys.ip(src) === host) {
+        if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }*/
+        }
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -195,10 +195,10 @@ function Hangman() {
         if (commandData === undefined) {
             return;
         }
-        /*if (sys.ip(src) === host) {
+        if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }*/
+        }
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -712,7 +712,6 @@ function Hangman() {
             "±Actions: If you guess wrong too many times, the host wins!",
             "*** *********************************************************************** ***",
             "±Hosting: To host a game, type /start Answer:Hint. The host can't guess or answer during their own game.",
-            "±Hosting: You can also type /start Answer:Hint:Number to set how many wrong guesses must be made before you win (minimum of " + minBodyParts + ").",
             "±Hosting: The winner of the previous game has priority for hosting the next game, and may use /pass User to give that priority to another user.",
             "±Hosting: If the user with hosting priority doesn't start a new game within " + winnerDelay + " seconds, anyone can host.",
             "*** *********************************************************************** ***",
@@ -1254,7 +1253,7 @@ function Hangman() {
             "/answer: To answer the question.",
             "/hangmanrules: To see the hangman rules.",
             "/view: To view the current game's state.",
-            "/start: To start a new game of hangman. Format /start answer:hint:number (number is 7 by default). Example: /start Pikachu:Pokémon:8.",
+            "/start: To start a new game of hangman. Format /start answer:hint. Example: /start Pikachu:Pokémon.",
             "/pass: To pass starting rights to someone else.",
             "/hangmanadmins: To see a list of hangman auth.",
             "/end: To end a game you started.",

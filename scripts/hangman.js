@@ -587,7 +587,6 @@ function Hangman() {
 
         if (isEventGame) {
             hangbot.sendAll(w + " won an Event Game and received 1 Leaderboard point!", hangchan);
-            hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
             var win = w.toLowerCase();
             if (!(win in leaderboards.current)) {
                 leaderboards.current[win] = 0;

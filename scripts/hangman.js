@@ -66,10 +66,10 @@ function Hangman() {
 
     this.lastAdvertise = 0;
     this.guessCharacter = function (src, commandData) {
-        /*if (sys.ip(src) === host) {
+        if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }*/
+        }
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -86,13 +86,13 @@ function Hangman() {
             hangbot.sendMessage(src, "You checked the answer, so you can't play!", hangchan);
             return;
         }
-        /*for (var x in points) {
+        for (var x in points) {
             if (sys.ip(src) === sys.dbIp(x) && sys.name(src)!== x) {
                 hangbot.sendAll(x + " changed their name to " + sys.name(src) + "!", hangchan);
                 this.switchPlayer(x, sys.name(src));
                 break;
             }
-        }*/
+        }
         var now = (new Date()).getTime();
         if (now < SESSION.users(src).hangmanTime) {
             hangbot.sendMessage(src, "You need to wait for another " + (Math.floor((SESSION.users(src).hangmanTime - now) / 1000) + 1) + " seconds before submitting another guess!", hangchan);
@@ -155,13 +155,14 @@ function Hangman() {
             this.countPoints();
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
+            
             if (pendingEvent) {
                 eventDelay = true;
             } else {
-            	if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
+                if (isEventGame) {
+                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
                 }
-                hangbot.sendAll("Type /start [answer]:[hint] to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
+                hangbot.sendAll("Type /start answer:hint to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
         }
         else {
@@ -186,11 +187,10 @@ function Hangman() {
                 sys.sendAll("*** ************************************************************ ***", hangchan);
                 hangbot.sendAll("HANGED! No one guessed the word '" + word.toUpperCase() + "' correctly, so " + (isEventGame ? "anyone may start a game now!" : "the host (" + hostName + ") has won this game!"), hangchan);
                 sys.sendAll("*** ************************************************************ ***", hangchan);
-                if (isEventGame) {
-                    sendChanHtmlAll(" ", hangchan);
-                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
-                }
                 sendChanHtmlAll(" ", hangchan);
+                if (isEventGame) {
+                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
+                }
                 if (sys.isInChannel(sys.id(hostName), hangchan) === true) { // IF HOST WINS AND STILL IN CHANNEL
                     this.setWinner(hostName, (host === null && hostName == hangbot.name));
                 } 
@@ -210,10 +210,10 @@ function Hangman() {
         if (commandData === undefined) {
             return;
         }
-        /*if (sys.ip(src) === host) {
+        if (sys.ip(src) === host) {
             hangbot.sendMessage(src, "You started the game, so you can't answer!", hangchan);
             return;
-        }*/
+        }
         if (!word) {
             hangbot.sendMessage(src, "No game is running!", hangchan);
             return;
@@ -230,13 +230,13 @@ function Hangman() {
             hangbot.sendMessage(src, "The answer must have at least four letters!", hangchan);
             return;
         }
-        /*for (var x in points) {
+        for (var x in points) {
             if (sys.ip(src) === sys.dbIp(x) && sys.name(src)!== x) {
                 hangbot.sendAll(x + " changed their name to " + sys.name(src) + "!", hangchan);
                 this.switchPlayer(x, sys.name(src));
                 break;
             }
-        }*/
+        }
         var now = (new Date()).getTime();
         if (now < SESSION.users(src).hangmanTime) {
             hangbot.sendMessage(src, "You need to wait for another " + (Math.floor((SESSION.users(src).hangmanTime - now) / 1000) + 1) + " seconds before submitting another guess!", hangchan);
@@ -278,8 +278,8 @@ function Hangman() {
             if (pendingEvent) {
                 eventDelay = true;
             } else {
-            	if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
+                if (isEventGame) {
+                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
                 }
                 hangbot.sendAll("Type /start [answer]:[hint] to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
@@ -729,8 +729,8 @@ function Hangman() {
         var rules = [
             "",
             "*** *********************************************************************** ***",
-            "±Rules: Do not create inappropriate answers, hints or guesses, or attempt to troll the game in any way. This includes but is not limited to offences such as guessing uncommon letters or deliberately spoiling the answer.",
-            "±Rules: Make sure all games are accessible, playable and spelled correctly. This includes but is not limited to relevant, non-vague, specific and non-opinionated subjects, games in other languages, suitable hints and guess counts.",
+            "±Rules: Do not create inappropriate answers, hints or guesses, or attempt to troll the game in any way. This includes but is not limited to offences such as guessing uncommon letters, deliberately spoiling the answer, or ending the game for reasons other than correcting errors.",
+            "±Rules: Make sure all games are accessible, playable and spelled correctly. This includes but is not limited to relevant, non-vague, specific and non-opinionated subjects, games in other languages, suitable hints. Games that are lists e.g \"/start Shellos and Gastrodon:Pokemon\" are not allowed.",
             "±Rules: Remember to act in a cordial manner, both when interacting with channel users and authority, and playing the game.",
             "±Rules: Pay attention to channel and server authority (under /has and /auth respectively). Server /rules apply here too. If you have any doubt or see someone breaking the rules, contact the appropiate person (HA for hangman, auth for server).",
             "*** *********************************************************************** ***",
@@ -754,13 +754,13 @@ function Hangman() {
             "±Actions: If you think you already know the answer, you can use /a or /answer [answer] to submit a full answer.",
             "±Actions: If you guess wrong too many times, the host wins!",
             "*** *********************************************************************** ***",
-            "±Hosting: To host a game, type /start Answer:Hint. The host can't guess or answer during their own game.",
-            //"±Hosting: You can also type /start Answer:Hint:Number to set how many wrong guesses must be made before you win (minimum of " + minBodyParts + ").",
+            "±Hosting: To host a game, type /start Answer:Hint. For example, to create a game where the answer is Pikachu and the hint is Pokemon, use /start Pikachu:Pokemon. The host can't guess or answer during their own game.",
+            // "±Hosting: You can also type /start Answer:Hint:Number to set how many wrong guesses must be made before you win (minimum of " + minBodyParts + ").",
             "±Hosting: The winner of the previous game has priority for hosting the next game, and may use /pass User to give that priority to another user.",
             "±Hosting: If the user with hosting priority doesn't start a new game within " + winnerDelay + " seconds, anyone can host.",
             "*** *********************************************************************** ***",
-            "±Rules: Do not create inappropriate answers, hints or guesses, or attempt to troll the game in any way. This includes but is not limited to offences such as guessing uncommon letters or deliberately spoiling the answer.",
-            "±Rules: Make sure all games are accessible, playable and spelled correctly. This includes but is not limited to relevant, non-vague, specific and non-opinionated subjects, games in other languages, suitable hints and guess counts.",
+            "±Rules: Do not create inappropriate answers, hints or guesses, or attempt to troll the game in any way. This includes but is not limited to offences such as guessing uncommon letters, deliberately spoiling the answer, or ending the game for reasons other than correcting errors.",
+            "±Rules: Make sure all games are accessible, playable and spelled correctly. This includes but is not limited to relevant, non-vague, specific and non-opinionated subjects, games in other languages, suitable hints. Games that are lists e.g \"/start Shellos and Gastrodon:Pokemon\" are not allowed.",
             "±Rules: Remember to act in a cordial manner, both when interacting with channel users and authority, and playing the game.",
             "±Rules: Pay attention to channel and server authority (under /has and /auth respectively). Server /rules apply here too. If you have any doubt or see someone breaking the rules, contact the appropiate person (HA for hangman, auth for server).",
             "*** *********************************************************************** ***",
@@ -1330,7 +1330,7 @@ function Hangman() {
         var ownerHelp = [
             "*** Server owner Hangman Commands ***",
             "/hangmansuperadmin: To promote a new Hangman Super Admin. Use /shangmansuperadmin for a silent promotion.",
-            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion. bruh"
+            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion."
         ];
         var help = userHelp;
         if (this.authLevel(src) > 0) {

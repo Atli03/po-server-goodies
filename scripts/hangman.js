@@ -1327,7 +1327,7 @@ function Hangman() {
         var ownerHelp = [
             "*** Server owner Hangman Commands ***",
             "/hangmansuperadmin: To promote a new Hangman Super Admin. Use /shangmansuperadmin for a silent promotion.",
-            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion."
+            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion. KEK"
         ];
         var help = userHelp;
         if (this.authLevel(src) > 0) {

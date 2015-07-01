@@ -155,12 +155,12 @@ function Hangman() {
             this.countPoints();
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
-            if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
-                }
             if (pendingEvent) {
                 eventDelay = true;
             } else {
+            	if (isEventGame) {
+                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
+                }
                 hangbot.sendAll("Type /start [answer]:[hint] to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
         }
@@ -187,6 +187,7 @@ function Hangman() {
                 hangbot.sendAll("HANGED! No one guessed the word '" + word.toUpperCase() + "' correctly, so " + (isEventGame ? "anyone may start a game now!" : "the host (" + hostName + ") has won this game!"), hangchan);
                 sys.sendAll("*** ************************************************************ ***", hangchan);
                 if (isEventGame) {
+                    sendChanHtmlAll(" ", hangchan);
                     hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
                 }
                 sendChanHtmlAll(" ", hangchan);
@@ -277,6 +278,9 @@ function Hangman() {
             if (pendingEvent) {
                 eventDelay = true;
             } else {
+            	if (isEventGame) {
+                    hangbot.sendAll("Suggest more event game categories here http://pokemon-online.eu/threads/31530", hangchan);
+                }
                 hangbot.sendAll("Type /start [answer]:[hint] to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
         }

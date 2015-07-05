@@ -156,7 +156,7 @@ function Hangman() {
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
             if (isEventGame) {
-                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
+                sys.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
                 }
             if (pendingEvent) {
                 eventDelay = true;
@@ -188,7 +188,7 @@ function Hangman() {
                 sys.sendAll("*** ************************************************************ ***", hangchan);
                 sendChanHtmlAll(" ", hangchan);
                 if (isEventGame) {
-                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
+                sys.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
                 }
                 if (sys.isInChannel(sys.id(hostName), hangchan) === true) { // IF HOST WINS AND STILL IN CHANNEL
                     this.setWinner(hostName, (host === null && hostName == hangbot.name));
@@ -275,7 +275,7 @@ function Hangman() {
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
             if (isEventGame) {
-                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
+                sys.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
            	}
             if (pendingEvent) {
                 eventDelay = true;

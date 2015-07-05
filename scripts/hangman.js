@@ -155,13 +155,12 @@ function Hangman() {
             this.countPoints();
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
-            
+            if (isEventGame) {
+                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
+                }
             if (pendingEvent) {
                 eventDelay = true;
             } else {
-                if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
-                }
                 hangbot.sendAll("Type /start answer:hint to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
         }
@@ -185,15 +184,15 @@ function Hangman() {
             }
             else {
                 sys.sendAll("*** ************************************************************ ***", hangchan);
-                hangbot.sendAll("HANGED! No one guessed the word '" + word.toUpperCase() + "' correctly, so " + (isEventGame ? "anyone may start a game now!" : "the host (" + hostName + ") has won this game!"), hangchan);
+                hangbot.sendAll("HANGED! No one guessed the word '" + word.toUpperCase() + "' correctly, so " + (!isEventGame && sys.isInChannel(sys.id(hostName), hangchan) ? "the host (" + hostName + ") has won this game!" : "anyone may start a game now!"), hangchan);
                 sys.sendAll("*** ************************************************************ ***", hangchan);
                 sendChanHtmlAll(" ", hangchan);
                 if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
+                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
                 }
                 if (sys.isInChannel(sys.id(hostName), hangchan) === true) { // IF HOST WINS AND STILL IN CHANNEL
                     this.setWinner(hostName, (host === null && hostName == hangbot.name));
-                } 
+                }
                 else { // IF HOST WINS AND NOT IN CHANNEL
                     this.setWinner(hostName, true); // TRUE SO PLAYER CAN INSTANT START
                 }
@@ -275,12 +274,12 @@ function Hangman() {
             this.countPoints();
             sys.sendAll("*** ************************************************************ ***", hangchan);
             sendChanHtmlAll(" ", hangchan);
+            if (isEventGame) {
+                hangbot.sendHtmlAll("Suggest more event game categories <a href='http://pokemon-online.eu/threads/31530'>here</a>!", hangchan);
+           	}
             if (pendingEvent) {
                 eventDelay = true;
             } else {
-                if (isEventGame) {
-                    hangbot.sendAll("Suggest more event game categories here! http://pokemon-online.eu/threads/31530", hangchan);
-                }
                 hangbot.sendAll("Type /start [answer]:[hint] to start a new game. If you didn't win then wait " + winnerDelay + " seconds.", hangchan);
             }
         }
@@ -1829,8 +1828,8 @@ function Hangman() {
                 sendChanHtmlAll(" ", hangchan);
                 this.setWinner(hostName, (host === null && hostName == hangbot.name));
                 eventCount = eventLimit;
- 	        suddenDeathLimit = 300;
-            } 
+                suddenDeathLimit = 300;
+            }
         }
         if (eventCount === 0 && eventGamesEnabled) {
             hangman.checkNewMonth();

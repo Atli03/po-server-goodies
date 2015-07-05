@@ -146,7 +146,7 @@ function Hangman() {
         usedLetters.push(commandData.toLowerCase());
         sendChanHtmlAll(" ", hangchan);
         hangbot.sendAll("" + sys.name(src) + " guessed " + letter.toUpperCase() + " and got it " + (correct ? "right (" + p + (p == 1 ? " point)" : " points)") : "wrong") + "!", hangchan);
-        hangbot.sendAll("Current Word: " + currentWord.join(" ") + "", hangchan);
+        //hangbot.sendAll("Current Word: " + currentWord.join(" ") + "", hangchan);
 
         if (currentWord.indexOf("_") === -1) {
             this.applyPoints(src, p + 2);
@@ -178,6 +178,7 @@ function Hangman() {
                 hangbot.sendAll("[Hint: " + hint + "]  [Letters used: " + usedLetters.map(function (x) {
                     return x.toUpperCase();
                 }).join(", ") + "] " + (gameMode === regular ? "[Chances left: " + parts + "] " : ""), hangchan);
+                hangbot.sendAll("Current Word: " + currentWord.join(" ") + "", hangchan);
                 sendChanHtmlAll(" ", hangchan);
                 this.applyPoints(src, p);
                 SESSION.users(src).hangmanTime = (new Date()).getTime() + answerDelay * 1000;
@@ -1329,7 +1330,7 @@ function Hangman() {
         var ownerHelp = [
             "*** Server owner Hangman Commands ***",
             "/hangmansuperadmin: To promote a new Hangman Super Admin. Use /shangmansuperadmin for a silent promotion.",
-            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion.ayylmao"
+            "/hangmansuperadminoff: To demote a Hangman Super Admin. Use /shangmansuperadminoff for a silent demotion."
         ];
         var help = userHelp;
         if (this.authLevel(src) > 0) {

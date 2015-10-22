@@ -75,7 +75,8 @@ var tourcommands = ["/join: Joins a tournament.",
                     "/tourrules: Lists the tournament rules.",
                     "/touralerts [on/off]: Turn on/off your tour alerts (Shows list of Tour Alerts if on/off isn't specified).",
                     "/addtouralert: Adds a tour alert for the specified tier.",
-                    "/removetouralert: Removes a tour alert for the specified tier."];
+                    "/removetouralert: Removes a tour alert for the specified tier.",
+                    "/showevents: Shows a list of the upcoming event tournaments"];
 var tourmodcommands = ["Parameters: They can be used by putting 'gen=x'; 'mode=singles/doubles/triples'; 'type=single/double'; 'wifi=on/off'.",
                     "For example: '/tour Challenge Cup:gen=RBY:mode=triples:type=double:wifi=on' starts a RBY Challenge Cup double elimination tournament (in Triples mode) with Team Preview.",
                     "/tour: Puts a tour in the queue. Format is /tour tier:parameters.",
@@ -113,7 +114,8 @@ var tourownercommands = ["/megauser: Makes someone a megauser. Use /smegauser fo
                     "/fullleaderboard: Gives the full leaderboard for a specified tier.",
                     "/fullmonthlyleaderboard: Gives the full monthly leaderboard for a specified month.",
                     "/loadevents: Load event tours."];
-var serverownercommands = ["/tourowner: Makes someone a Tournament Owner. Use /stowner for a silent promotion. UPDATED????"];
+var serverownercommands = ["/tourowner: Makes someone a Tournament Owner. Use /stowner for a silent promotion.",
+                    "/tourowneroff: Removes someone from Tournament Owner. Use /stowneroff for a silent demotion."];
 var tourrules = ["*** TOURNAMENT GUIDELINES ***",
                 "Breaking the following rules may result in punishment:",
                 "#1: Team revealing or scouting in tiers other than Challenge Cup, Battle Factory, or Metronome will result in disqualification.",
@@ -141,12 +143,12 @@ var tourrules = ["*** TOURNAMENT GUIDELINES ***",
                 "#13: Do not attempt to circumvent the rules.",
                 "- Attempting to circumvent the rules through trickery, proxy or other such methods will be punished."];
 var tierToRmtId = {
-    "XY OU": 42,
-    "XY Ubers": 43,
-    "XY UU": 44,
-    "XY LU": 45,
-    "XY NU": 119,
-    "XY LC": 46,
+    "ORAS OU": 42,
+    "ORAS Ubers": 43,
+    "ORAS UU": 44,
+    "ORAS LU": 45,
+    "ORAS NU": 119,
+    "ORAS LC": 46,
     "Inverted Battle": 47,
     "Monotype": 48,
     "BW2 OU": 49,
@@ -160,11 +162,11 @@ var tierToRmtId = {
     "HGSS UU": 62,
     "HGSS NU": 63,
     "HGSS LC": 64,
-    "ADV OU": 66,
-    "ADV Ubers": 67,
-    "ADV UU": 68,
-    "ADV NU": 69,
-    "ADV LC": 70,
+    "Adv OU": 66,
+    "Adv Ubers": 67,
+    "Adv UU": 68,
+    "Adv NU": 69,
+    "Adv LC": 70,
     "GSC OU": 72,
     "GSC Ubers": 73,
     "GSC UU": 74,
@@ -548,7 +550,7 @@ function getTourClauses(key) {
     else if (!tours.tour[key].parameters.wifi && tierclauses%256 >= 128) {
         tierclauses -= 128;
     }
-    var clauselist = ["Sleep Clause", "Freeze Clause", "Disallow Spects", "Item Clause", "Challenge Cup", "No Timeout", "Species Clause", "Wifi Battle", "Self-KO Clause", "Inverted Battle"];
+    var clauselist = ["Sleep Clause", "Freeze Clause", "Disallow Spects", "Item Clause", "Challenge Cup", "No Timeout", "Species Clause", "Team Preview", "Self-KO Clause", "Inverted Battle"];
     var neededclauses = [];
     for (var c=0;c<clauselist.length;c++) {
         var denom = Math.pow(2,c+1);
@@ -570,7 +572,7 @@ function clauseCheck(key, issuedClauses) {
     else if (tours.tour[key].parameters.wifi === false && requiredClauses%256 >= 128) {
         requiredClauses -= 128;
     }
-    var clauselist = ["Sleep Clause", "Freeze Clause", "Disallow Spects", "Item Clause", "Challenge Cup", "No Timeout", "Species Clause", "Wifi Battle", "Self-KO Clause", "Inverted Battle"];
+    var clauselist = ["Sleep Clause", "Freeze Clause", "Disallow Spects", "Item Clause", "Challenge Cup", "No Timeout", "Species Clause", "Team Preview", "Self-KO Clause", "Inverted Battle"];
     var clause1 = false;
     var clause2 = false;
     var missing = [];
@@ -762,7 +764,6 @@ function getConfigValue(file, key) {
             decaytime: 2,
             norepeat: 7,
             decayglobalrate: 2,
-            version: "2.107",
             tourbot: "\u00B1"+Config.tourneybot+": ",
             debug: false,
             points: true,
@@ -788,8 +789,8 @@ function getConfigValue(file, key) {
 
 function initTours() {
     // config object
-    sys.makeDir("tourconfig");
-    sys.makeDir("tourdata");
+    sys.makeDir(configDir);
+    sys.makeDir(dataDir);
     tourconfig = {
         maxqueue: parseInt(getConfigValue("tourconfig.txt", "maxqueue"), 10),
         maxarray: 1023,
@@ -810,7 +811,6 @@ function initTours() {
         decaytime: parseFloat(getConfigValue("tourconfig.txt", "decaytime")),
         norepeat: parseInt(getConfigValue("tourconfig.txt", "norepeat"), 10),
         decayglobalrate: parseFloat(getConfigValue("tourconfig.txt", "decayglobalrate")),
-        version: "2.107",
         tourbot: getConfigValue("tourconfig.txt", "tourbot"),
         debug: false,
         points: true,
@@ -907,7 +907,6 @@ function initTours() {
         tourwarnings = {'ranges': []};
     }
     loadTourMutes();
-    sendChanAll("Version "+tourconfig.version+" of the tournaments system was loaded successfully in this channel!", tourschan);
 }
 
 function getEventTour(datestring) {
@@ -930,7 +929,7 @@ function getEventTour(datestring) {
             if (thetier === null) {
                 continue;
             }
-            var allgentiers = ["Challenge Cup", "Metronome", "CC 1v1", "Wifi CC 1v1", "Inverted Challenge Cup"];
+            var allgentiers = ["Challenge Cup", "Metronome", "CC 1v1", "Wifi CC 1v1", "Inverted Challenge Cup", "Hackmons Challenge Cup"];
             var parameters = {"gen": "default", "mode": modeOfTier(thetier), "type": "double", "maxplayers": false, "event": true, "wifi": sys.getClauses(thetier)%256 >= 128 ? true : false};
             if (eventdata.hasOwnProperty('settings')) {
                 var parameterdata = eventdata.settings;
@@ -1056,10 +1055,10 @@ function tourStep() {
                 tourinitiate(x);
                 continue;
             }
-            if (tours.tour[x].time-parseInt(sys.time(), 10) == 60 && tours.tour[x].parameters.event) {
+            if (tours.tour[x].time-parseInt(sys.time(), 10) == 60) {
                 sendBotAll("Signups for the "+getFullTourName(x)+" tournament close in 1 minute.", "~mt", false);
             }
-            else if (tours.tour[x].time-parseInt(sys.time(), 10) == 30) {
+            else if (tours.tour[x].time-parseInt(sys.time(), 10) == 30 && tours.tour[x].parameters.event) {
                 sendBotAll("Signups for the "+getFullTourName(x)+" tournament close in 30 seconds.", "~mt", false);
             }
             continue;
@@ -1091,7 +1090,7 @@ function tourStep() {
     }
     var datestring = now.getUTCDate()+"-"+(now.getUTCMonth()+1)+"-"+now.getUTCFullYear();
     var hour = now.getUTCHours();
-    var allgentiers = ["Challenge Cup", "CC 1v1", "Wifi CC 1v1", "Metronome"];
+    var allgentiers = ["Challenge Cup", "CC 1v1", "Wifi CC 1v1", "Metronome", "Hackmons Challenge Cup"];
     if (tours.eventticks === 0) {
         var details = getEventTour(datestring);
         if (typeof details === "object") {
@@ -1917,7 +1916,6 @@ function tourCommand(src, command, commandData, channel) {
                     tourconfig.channel = value;
                     sendAllTourAuth(tourconfig.tourbot+sys.name(src)+" set the tournament channel to "+tourconfig.channel,tourschan,false);
                     tourschan = sys.channelId(tourconfig.channel);
-                    sendChanAll("Version "+tourconfig.version+" of tournaments has been loaded successfully in this channel!", tourschan);
                     return true;
                 }
                 else if (option == 'scoring') {
@@ -2835,15 +2833,15 @@ function tourCommand(src, command, commandData, channel) {
             var thetier = find_tier(commandData);
             if (commandData === "") {
                 sendBotMessage(src, "Please specify a tier", tourschan, false);
-                return;
+                return true;
             }
             if (thetier === null) {
-                sendBotMessage(src,"No such tier exists.",tourschan,false);
+                sendBotMessage(src,"No such tier exists.",tourschan, false);
                 return true;
             }
             var seeddata = tstats.getseeds();
             if (!seeddata.hasOwnProperty(thetier)) {
-                sendBotMessage(src,"No data exists.",tourschan,false);
+                sendBotMessage(src,"No data exists.",tourschan, false);
                 return true;
             }
             var htmltosend = "<table><tr><th colspan=3>Tour seeds for "+html_escape(thetier)+"</th></tr><tr><th>Name</th><th>Seed Points</th><th>Decays in</th></tr>";
@@ -2853,9 +2851,9 @@ function tourCommand(src, command, commandData, channel) {
                 endarray.push([x, seedstats[x].points, time_handle(tourconfig.decaytime*24*60*60-(parseInt(sys.time(), 10)-seedstats[x].lastwin))]);
             }
             endarray.sort(function(a,b) {return b[1]-a[1];});
-            for (var z=0; z<32; z++) {
-                if (endarray.length <= z) break;
-                htmltosend = htmltosend+"<tr><td>"+html_escape(endarray[z][0])+"</td><td>"+(Math.round(endarray[z][1]*10)/10)+"</td><td>"+endarray[z][2]+"</td></tr>";
+            for (var x = 0; x < 32; x++) {
+                if (endarray.length <= x) break;
+                htmltosend = htmltosend+"<tr><td>"+html_escape(endarray[x][0])+"</td><td>"+(Math.round(endarray[x][1]*10)/10)+"</td><td>"+endarray[x][2]+"</td></tr>";
             }
             sys.sendHtmlMessage(src, htmltosend+"</table>", tourschan);
             return true;
@@ -2984,7 +2982,7 @@ function tourCommand(src, command, commandData, channel) {
         }
         if (command == "showevents" || command == "showevent") {
             showEvents(src, channel);
-            return;
+            return true;
         }
     }
     catch (err) {
@@ -3589,6 +3587,19 @@ function advanceround(key) {
 
 // starts a tournament
 function tourstart(tier, starter, key, parameters) {
+    var staffchan = sys.channelId("Victory Road"), tourAdminsObj = tours.touradmins, activeAuthCount = 0;
+    if (tours.queue.length === 1) { // NOTIFY VICTORY ROAD THAT /QUEUE IS LOW
+        sendBotAll("Queue in Tournaments is low.", staffchan, true);
+    }
+    else if (tours.queue.length === 0) { // NOTIFY VICTORY ROAD THAT /QUEUE IS EMPTY
+        for (var x in tourAdminsObj) {
+            if (sys.loggedIn(sys.id(x)) === true) {
+                activeAuthCount++;
+                sys.sendHtmlMessage(sys.id(x), "<font color=" + tourconfig.tourbotcolour + "><timestamp/><b>"+tourconfig.tourbot+"</b></font><b> You have been flashed!</b><ping/>", staffchan);
+            }
+        }
+        sendBotAll("Queue in Tournaments is empty" + (activeAuthCount === 0 ? " and there are no megausers logged on." : "."), staffchan, true);
+    }
     try {
         var channels = tourschan === 0 ? [0] : [0, tourschan];
         var now = new Date();
@@ -3651,7 +3662,7 @@ function tourstart(tier, starter, key, parameters) {
                 sendChanHtmlAll(redhtmlborder, channels[x]);
             }
             if (channels[x] == tourschan) {
-                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/wiki/"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups! (Started by <b>"+html_escape(starter)+"</b>)", channels[x]);
+                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/page/Tiers:"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups! (Started by <b>"+html_escape(starter)+"</b>)", channels[x]);
                 sendChanAll("CLAUSES: "+getTourClauses(key),channels[x]);
                 sendChanAll("PARAMETERS: "+parameters.mode+" Mode"+(parameters.gen != "default" ? "; Gen: "+getSubgen(parameters.gen,true) : "")+(parameters.type == "double" ? "; Double Elimination" : "")+(parameters.event ? "; Event Tournament" : "")+(wifiuse != "default" ? "; "+wifiuse : ""), channels[x]);
                 if (tier in tierToRmtId) {
@@ -3660,7 +3671,7 @@ function tourstart(tier, starter, key, parameters) {
                 sendChanHtmlAll("<timestamp/> Type <b>/join</b> to enter the tournament, "+(tours.tour[key].maxplayers === "default" ? "you have "+time_handle(parameters.event ? tourconfig.toursignup*2 : tourconfig.toursignup)+" to join!" : tours.tour[key].maxplayers+" places are open!"), channels[x]);
             }
             else {
-                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/wiki/"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signupsin #Tournaments! Use /cjoin Tournaments and type /join to enter the tournament!)", channels[x]);
+                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/page/Tiers:"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups in #"+sys.channel(tourschan)+"! Use /cjoin Tournaments and type /join to enter the tournament!)", channels[x]);
             }
             if (!parameters.event) {
                 sendChanAll(border, channels[x]);
@@ -3948,9 +3959,14 @@ function tourprintbracket(key) {
                     else {
                         sendChanHtmlAll(redhtmlborder, channels[x]);
                     }
-                    sendChanHtmlAll("<timestamp/> The winner of the "+getFullTourName(key)+" tournament is: <b>"+html_escape(winner)+"</b>!", channels[x]);
-                    sendChanAll("", channels[x]);
-                    sendBotAll("Please congratulate "+winner+" on their success!", channels[x], false);
+                    if (channels[x] == tourschan) {
+                        sendChanHtmlAll("<timestamp/> The winner of the "+getFullTourName(key)+" tournament is: <b>"+html_escape(winner)+"</b>!", channels[x]);
+                        sendChanAll("", channels[x]);
+                        sendBotAll("Please congratulate "+winner+" on their success!", channels[x], false);
+                    }
+                    else {
+                        sendChanHtmlAll("<timestamp/> The winner of the "+getFullTourName(key)+" tournament is: <b>"+html_escape(winner)+"</b>! Please congratulate "+winner+" on their success!", channels[x]);
+                    }
                     if (!isevent) {
                         sendChanAll(border, channels[x]);
                     }
@@ -4512,11 +4528,14 @@ function showEvents(src, chan) {
     if (typeof details2 === "object") {
         sys.sendMessage(src,"Tomorrow's Event Tournament: "+details2[0],chan);
     }
+    if (!details && !details2) {
+        sendBotMessage(src, "No events found", chan);
+    }
 }
 
 function sendWelcomeMessage(src, chan) {
     sys.sendMessage(src,border,chan);
-    sys.sendMessage(src,"*** Welcome to #"+tourconfig.channel+"; Version "+tourconfig.version+"! ***",chan);
+    sys.sendMessage(src,"*** Welcome to #"+tourconfig.channel,chan);
     showEvents(src, chan);
     sys.sendMessage(src,"",chan);
     sys.sendMessage(src,"*** Current Tournaments ***",chan);

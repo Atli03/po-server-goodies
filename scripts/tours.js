@@ -141,7 +141,7 @@ var tourrules = ["*** TOURNAMENT GUIDELINES ***",
                 "- Any deliberate attempt to undermine the integrity of tournaments will result in a permanent ban from tournaments.",
                 "#12: Do not join multiple tours even if you are using a different alt.",
                 "#13: Do not attempt to circumvent the rules.",
-                "- Attempting to circumvent the rules through trickery, proxy or other such methods will be punished. ei lol xd"];
+                "- Attempting to circumvent the rules through trickery, proxy or other such methods will be punished."];
 var tierToRmtId = {
     "ORAS OU": 42,
     "ORAS Ubers": 43,

@@ -1857,7 +1857,7 @@ function tourCommand(src, command, commandData, channel) {
                         sendBotMessage(src,"Current Value: "+tourconfig.minplayers,tourschan,false);
                         return true;
                     }
-                    if (value < 1 || value > 255) {
+                    if (value < 3 || value > 255) {
                         sendBotMessage(src,"Value must be between 3 and 255.",tourschan,false);
                         return true;
                     }

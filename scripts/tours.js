@@ -141,7 +141,7 @@ var tourrules = ["*** TOURNAMENT GUIDELINES ***",
                 "- Any deliberate attempt to undermine the integrity of tournaments will result in a permanent ban from tournaments.",
                 "#12: Do not join multiple tours even if you are using a different alt.",
                 "#13: Do not attempt to circumvent the rules.",
-                "- Attempting to circumvent the rules through trickery, proxy or other such methods will be punished.eii"];
+                "- Attempting to circumvent the rules through trickery, proxy or other such methods will be punished."];
 var tierToRmtId = {
     "ORAS OU": 42,
     "ORAS Ubers": 43,
@@ -3730,7 +3730,7 @@ function tourstart(tier, starter, key, parameters) {
             }
             else {
                 sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/page/Tiers:"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups!", channels[x]);
-                sendChanAll("Go to #"+sys.channel(tourschan)+" (type /cjoin tournaments) and type /join to enter the tournament!"), channels[x]);
+                sendChanAll("Go to #"+sys.channel(tourschan)+" (type /cjoin tournaments) and type /join to enter the tournament!", channels[x]);
             }
             if (!parameters.event) {
                 sendChanAll(border, channels[x]);

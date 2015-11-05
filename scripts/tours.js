@@ -3729,7 +3729,8 @@ function tourstart(tier, starter, key, parameters) {
                 }
             }
             else {
-                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/page/Tiers:"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups in #"+sys.channel(tourschan)+"! Use /cjoin Tournaments and type /join to enter the tournament!", channels[x]);
+                sendChanHtmlAll("<timestamp/> " + (startsWithVowel(tier) ? "An " : "A ") + "<b><a href='http://wiki.pokemon-online.eu/page/Tiers:"+tier.replace(/ /g,"_")+"'>"+tier+"</a></b> "+(!tours.tour[key].event ? "tournament" : "event")+" has opened for signups!", channels[x]);
+                sendChanAll("Go to #"+sys.channel(tourschan)+" (type /cjoin tournaments) and type /join to enter the tournament!"), channels[x]);
             }
             if (!parameters.event) {
                 sendChanAll(border, channels[x]);

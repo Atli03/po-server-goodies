@@ -1867,10 +1867,10 @@ function Hangman() {
             sys.sendAll("", hangchan);
         }
     };
-    this.onHmute = function (src) {
+    /*this.onHmute = function (src) {
         if (sys.isInChannel(src, hangchan)) {
             sys.kick(src, hangchan);
         }
-    };
+    };*/
 }
 module.exports = new Hangman();

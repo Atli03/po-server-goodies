@@ -1,4 +1,4 @@
-
+﻿
 /*
 Code for tours.js
 Original coding by Shadowfist 2012
@@ -12,8 +12,26 @@ This code will only work on servers updated to 6th Gen!
 */
 
 /*jshint laxbreak:true,shadow:true,undef:true,evil:true,trailing:true,proto:true,withstmt:true*/
-/*global script, sys, SESSION, sendChanAll, sendChanHtmlAll, require, Config, module*/
-var tourschan, tourserrchan, tours, tourwinmessages, tourstats, tourwarnings, tourconfig;
+/*global script, sys, SESSION, sendChanAll, sendChanHtmlAll, require, Config, module, tourconfig:true*/
+var tourschan, tourserrchan, tours, tourwinmessages, tourstats, tourwarnings;
+
+//Challenge Cup tiers
+var cctiers = ["Challenge Cup", "CC 1v1", "Wifi CC 1v1", "Inverted Challenge Cup", "Hackmons Challenge Cup", "Hackmons CC 1v1", "Hackmons Wifi CC 1v1", "Hackmons Inverted CC"];
+//Tiers that are all gen
+var allgentiers = cctiers.concat("Metronome");
+//Tiers that are BF or CC. These also allow others to watch
+var ccbftiers = cctiers.concat("Battle Factory", "Battle Factory 6v6");
+//Tiers with double elim by default
+var doubleelimtiers = ["CC 1v1", "Wifi CC 1v1", "Gen 5 1v1", "Gen 5 1v1 Ubers", "ORAS 1v1", "Hackmons CC 1v1", "Hackmons Wifi CC 1v1"];
+//Tiers that are locked to Singles Mode
+var singlesonlytiers = ["Gen 5 1v1", "Gen 5 1v1 Ubers", "CC 1v1", "Wifi CC 1v1", "GBU Singles", "Adv Ubers", "Adv OU", "DP Ubers", "DP OU", "No Preview OU", "No Preview Ubers", "Wifi OU", "Wifi Ubers", "Hackmons CC 1v1", "Hackmons Wifi CC 1v1"];
+//Tiers with Team Preview state that can't be modified
+var previewlockedtiers = ["CC 1v1", "Wifi CC 1v1", "Wifi Ubers", "Wifi OU", "No Preview Ubers", "No Preview OU", "Wifi Triples", "Wifi Uber Triples", "No Preview OU Triples", "No Preview Uber Triples", "Wifi OU Doubles", "Wifi Uber Doubles", "No Preview OU Doubles", "No Preview Uber Doubles"];
+//Tiers used when queue is empty
+var autotiers = ["Challenge Cup", "CC 1v1", "Wifi CC 1v1", "ORAS Ubers", "ORAS OU", "Battle Factory 6v6", "Monotype", "ORAS 1v1", "Hackmons Challenge Cup", "Inverted Challenge Cup"];
+
+//Clause List
+var clauselist = ["Sleep Clause", "Freeze Clause", "Disallow Spects", "Item Clause", "Challenge Cup", "No Timeout", "Species Clause", "Team Preview", "Self-KO Clause", "Inverted Battle"];
 
 if (typeof tourschan !== "string") {
     tourschan = sys.channelId("Tournaments");
@@ -29,24 +47,6 @@ if (typeof tours !== "object") {
         sendChanAll("Loaded cached tournament object", tourschan);
     }
     catch (e) {
-        sendChanAll("Creating new tournament object", tourschan);
-        tours = {"queue": [], "globaltime": -1, "key": 0, "keys": [], "tour": {}, "history": [], "eventhistory": [], "touradmins": {}, "subscriptions": {}, "activetas": [], "activehistory": [], "tourmutes": {}, "metrics": {}, "eventticks": -1, "working": true};
-    }
-    var refresh = true;
-    for (var x in tours.tour) {
-        if (tours.tour[x].event) {
-            refresh = false;
-        }
-    }
-    if (refresh) {
-        refreshTicks(true);
-    }
-}
-
-var configDir = "scriptdata/tourconfig/";
-var dataDir = "scriptdata/tourdata/";
-var utilities = require('utilities.js');
-var html_escape = require('utilities.js').html_escape;
 var tstats = require("newtourstats.js");
 var border = "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»:";
 var htmlborder = "<font color=#3DAA68><b>"+border+"</b></font>";

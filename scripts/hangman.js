@@ -7,46 +7,46 @@ var html_escape = require("utilities.js").html_escape;
 function Hangman() {
     var hangman = this;
     var hangchan;
-
     var defaultChannel = "Hangman";
+    
     var defaultParts = 7;
     var minBodyParts = 5;
     var winnerDelay = 60;
     var answerDelay = 7;
-    var maxAnswers = [3, 2];
-    var maxGuesses = 2;
-
-    var autoGamesFile = "scriptdata/hangmanq.txt";
-    var leaderboardsFile = "scriptdata/hangmanLeaderboards.txt";
+    var tossUpDelay = 4;
+    var maxAnswers = [3, 2, 4];
+    var maxGuesses = 3;
+    var cutOff = 75;
     var idleCount = 0;
     var idleLimit = 1800;
-    var autoGames;
-    var autoGamesEnabled = false;
+    var eventLimit = 1800;    
+    var delayCount = 0;
+    var delayLimit = 3;
+    var passCount = 0;
+    var passLimit = 4;
+    var suddenDeathLimit = 300;
+    var suddenDeathTime = suddenDeathLimit;    
+    var suddenDeathChanceTime = 120;
+    var tossUpCount;
+    var tossUpGuess;    
+    
+    var autoGamesFile = "scriptdata/hangmanq.txt";
+    var leaderboardsFile = "scriptdata/hangmanLeaderboards.txt";
+    var changeLogFile = "scriptdata/hangmanchangelog.txt";
+    var flashlistFile = "scriptdata/hangmanflashlist.txt";
 
-    var eventLimit = 1800;
+    var autoGames;
+    var autoGamesEnabled = false;    
     var eventCount = (SESSION.global() && SESSION.global().hangmanEventCount ? SESSION.global().hangmanEventCount : eventLimit);
     var eventGamesEnabled = true;
     var isEventGame;
     var pendingEvent = false;
     var eventDelay = false;
-    var delayCount = 0;
-    var delayLimit = 1;
-    var suddenDeathLimit = 300;
 
-    var host;
-    var hostName;
+    var hostIpArray = [];
+    var hostName = "";
     var winner;
-    var nextGame;
-    var gameMode;
-    var nextGameMode = 0;
     
-    var regular = 0;
-    var suddenDeath = 1;
-
-    var checked = [];
-
-    var word;
-    var currentWord = [];
     var usedLetters = [];
     var hint = "";
     var parts;
